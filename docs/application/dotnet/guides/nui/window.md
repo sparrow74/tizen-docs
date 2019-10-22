@@ -10,8 +10,7 @@ title: Nui Tutorial
 This tutorial describes how to create and manage windows in NUI, covering the following subjects:
 
 [Overview](#overview)<br>
-[Main Window](#mainwindow)<br>
-[Creating Additional Window](#additionalwindow)<br>
+[Creating Window](#creating)<br>
 [Deleting Window](#deleting)<br>
 [Resizing Window](#resizing)<br>
 [Moving Window](#moving)<br>
@@ -19,38 +18,40 @@ This tutorial describes how to create and manage windows in NUI, covering the fo
 [Changing Window Stacking Order](#raisinglowering)<br>
 [Event Handling](#eventhandling)<br>
 [Focus Management](#focusmanagement)<br>
+[Window Rotation](#rotation)<br>
+[Multi Window](#multiwindow)<br>
 
 <a name="overview"></a>
 ## Window overview
 
 A window contains the visible content of the application.
 
-When an application is created, it automatically creates the [main window](#mainwindow) for building the main user interface of the application.
+When an application is created, it automatically creates the [Creating Window](#defaultwindow) for building the main user interface of the application.
 
 [Additional windows](#additionalwindow) can be created (as needed) to display additional content.
 
-<img src="{{site.baseurl}}/assets/images/window/MultipleWindow.png">
+<img src="./media/MultipleWindow.png">
 
 The window delivers [various events](#eventhandling) (e.g. key event and touch event) to the application.
 
 [Back to top](#top)
 
-<a name="mainwindow"></a>
-## Creating main window
+<a name="defaultwindow"></a>
+## Creating window
 
-When an application is created, the main window will be automatically created:
+When an application is created, the default window will be automatically created:
 
 ~~~{.cs}
 MyApplication myApp = new MyApplication();
 ~~~
 
-By default, the main window is created in full screen size, except that if running on the desktop the default size of the main window is set by the **set-env** script. The default main window size can be overriden by environment variables or command line options when launching the application in command line. For example:
+By default, the default window is created in full screen size, except that if running on the desktop the default size of the window is set by the **set-env** script. The default window size can be overriden by environment variables or command line options when launching the application in command line. For example:
 
 ~~~{.cs}
 DALI_WINDOW_WIDTH=1920 DALI_WINDOW_HEIGHT=1080 my-app
 ~~~
 
-It also allows to specify the initial size and position of the main window by passing them to the constructor of the application:
+It also allows to specify the initial size and position of the default window by passing them to the constructor of the application:
 
 ~~~{.cs}
 public MyApplication(Size2D windowSize, Position2D windowPosition) : base(windowSize, windowPosition)
@@ -60,10 +61,10 @@ public MyApplication(Size2D windowSize, Position2D windowPosition) : base(window
 MyApplication myApp = new MyApplication(new Size2D(1920, 1080), new Position2D(0, 0));
 ~~~
 
-The instance of the main window can be retrieved:
+The instance of the default window can be retrieved:
 
 ~~~{.cs}
-Window mainWindow = Window.Instance;
+Window window = Window.Instance;
 ~~~
 
 The window itself is just a blank container, and the views can be added to or removed from the window.
@@ -73,10 +74,10 @@ The window itself is just a blank container, and the views can be added to or re
 View view = new View();
 
 // Add the view to the window
-mainWindow.Add(view);
+window.Add(view);
 
 // Remove the view from the window
-mainWindow.Remove(view);
+window.Remove(view);
 ~~~
 
 Below is a simple example of how to add content to the window:
@@ -104,25 +105,10 @@ window.Add(title);
 
 [Back to top](#top)
 
-<a name="additionalwindow"></a>
-## Creating additional window
-
-It is easy to create an additional window in addition to the main window. The size and position of the new window should be specified. Each window can has its own background color and title.
-
-~~~{.cs}
-Window newWindow = new Window(new Rectangle(0, 0, 1920, 1080))
-{
-    BackgroundColor = Color.White,
-    Title = "new window"
-};
-~~~
-
-[Back to top](#top)
-
 <a name="deleting"></a>
 ## Deleting window
 
-A window can be deleted, which will also delete all the views inside the window. However, the main window cannot be deleted.
+A window can be deleted, which will also delete all the views inside the window. However, the window cannot be deleted.
 
 ~~~{.cs}
 newWindow.Destroy();
@@ -280,7 +266,7 @@ Here is a simple example to show how this can be done.
 
 Suppose there are two windows and each window has two buttons (as shown in the diagram below). We want to move focus between the buttons in these two windows using "Left" and "Right" navigation keys.
 
-<img src="{{site.baseurl}}/assets/images/window/FocusManagement.png">
+<img src="./media/FocusManagement.png">
 
 Firstly, all the buttons should be set as focusable.
 
@@ -384,5 +370,33 @@ private void OnFocusedViewActivated(object sender, FocusManager.FocusedViewActiv
     Console.WriteLine("Button " + activatedView.Name + " is activated");
 }
 ~~~
+
+[Back to top](#top)
+
+<a name="Rotation"></a>
+## Window Rotation
+
+
+
+[Back to top](#top)
+
+<a name="multiwindow"></a>
+## Multi Window
+
+<a name="additionalwindow"></a>
+### Creating Additional Window
+
+It is easy to create an additional window in addition to the default window. The size and position of the new window should be specified. Each window can has its own background color and title.
+
+~~~{.cs}
+Window newWindow = new Window(new Rectangle(0, 0, 1920, 1080))
+{
+    BackgroundColor = Color.White,
+    Title = "new window"
+};
+~~~
+
+<a name="transientfor"></a>
+### Setting parent window
 
 [Back to top](#top)
