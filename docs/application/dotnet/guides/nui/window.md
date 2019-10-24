@@ -17,7 +17,6 @@ This tutorial describes how to create and manage windows in NUI, covering the fo
 [Showing & Hiding Window](#showinghiding)<br>
 [Changing Window Stacking Order](#raisinglowering)<br>
 [Event Handling](#eventhandling)<br>
-[Focus Management](#focusmanagement)<br>
 [Window Rotation](#rotation)<br>
 [Multi Window](#multiwindow)<br>
 
@@ -45,11 +44,7 @@ When an application is created, the default window will be automatically created
 MyApplication myApp = new MyApplication();
 ~~~
 
-By default, the default window is created in full screen size, except that if running on the desktop the default size of the window is set by the **set-env** script. The default window size can be overriden by environment variables or command line options when launching the application in command line. For example:
-
-~~~{.cs}
-DALI_WINDOW_WIDTH=1920 DALI_WINDOW_HEIGHT=1080 my-app
-~~~
+By default, the default window is created in full screen size.
 
 It also allows to specify the initial size and position of the default window by passing them to the constructor of the application:
 
@@ -257,8 +252,73 @@ private void OnWindowResized(object sender, Window.ResizedEventArgs e)
 
 [Back to top](#top)
 
+<a name="Rotation"></a>
+## Window Rotation
+
+To support rotation, NUI provides two methods.
+
+### Enable/Disable rotation
+
+If the device supports rotation, application can use rotation function with specific angle.
+
+The supported angles are 0, 90, 180 and 270.
+
+Application can enable or disable the specifc orientation to use rotation functions.
+
+~~~{.cs}
+// To enable 0's rotation
+window.AddAvailableOrientation( Portrait );
+
+// To enable 90's rotation
+window.AddAvailableOrientation( Landscape );
+
+// To disable 180's rotation
+window.RemoveAvailableOrientation( PortraitInverse );
+
+// To enable 270's rotation
+window.AddAvailableOrientation( LandscapeInverse );
+~~~
+
+### Preferred rotation
+
+If application wants to set default orientation,
+he can use the preferred rotation function.
+
+~~~{.cs}
+// To set the preferred orientation with Landscape.
+window.SetPreferredOrientation( Landscape );
+~~~
+
+> **Note**
+>
+> If the Preferred Orientation's function is used, the Available Orientation function does not work.
+>
+
+[Back to top](#top)
+
+<a name="multiwindow"></a>
+## Multi Window
+
+<a name="additionalwindow"></a>
+### Creating Additional Window
+
+It is easy to create an additional window in addition to the default window. The size and position of the new window should be specified. Each window can has its own background color and title.
+
+~~~{.cs}
+Window newWindow = new Window(new Rectangle(0, 0, 1920, 1080))
+{
+    BackgroundColor = Color.White,
+    Title = "new window"
+};
+~~~
+
+> **Note**
+>
+> To support rotation in multi window, the [rotation](#rotation) functions should be used for each window.
+>
+
 <a name="focusmanagement"></a>
-## Focus management
+### Focus management
 
 Keyboard focus can be handled between multiple windows.
 
@@ -373,30 +433,33 @@ private void OnFocusedViewActivated(object sender, FocusManager.FocusedViewActiv
 
 [Back to top](#top)
 
-<a name="Rotation"></a>
-## Window Rotation
-
-
-
-[Back to top](#top)
-
-<a name="multiwindow"></a>
-## Multi Window
-
-<a name="additionalwindow"></a>
-### Creating Additional Window
-
-It is easy to create an additional window in addition to the default window. The size and position of the new window should be specified. Each window can has its own background color and title.
-
-~~~{.cs}
-Window newWindow = new Window(new Rectangle(0, 0, 1920, 1080))
-{
-    BackgroundColor = Color.White,
-    Title = "new window"
-};
-~~~
-
 <a name="transientfor"></a>
 ### Setting parent window
+
+To set transient for two windows, SetParent function is useful.
+After setting that, these windows do together when raise-up, lower and iconified/deiconified.
+Initially, the window is located on top of the parent. The window can go below parent by calling Lower().
+~~~{.cs}
+// Get the parent window instance
+Window parent = Window.Instance;
+
+Window child = new Window(new Rectangle(0, 0, 960, 1080))
+{
+    BackgroundColor = Color.White,
+    Title = "child window"
+};
+
+child.SetParent( parent );
+~~~
+
+To unset transient for relationship, call Unparent().
+~~~{.cs}
+child.Unparent();
+~~~
+
+> **Note**
+>
+> If parent's window stack is changed by calling Raise() or Lower(),> child windows are located on top of the parent again.
+>
 
 [Back to top](#top)
