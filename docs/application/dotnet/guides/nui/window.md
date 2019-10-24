@@ -17,7 +17,6 @@ This tutorial describes how to create and manage windows in NUI, covering the fo
 [Showing & Hiding Window](#showinghiding)<br>
 [Changing Window Stacking Order](#raisinglowering)<br>
 [Event Handling](#eventhandling)<br>
-[Focus Management](#focusmanagement)<br>
 [Window Rotation](#rotation)<br>
 [Multi Window](#multiwindow)<br>
 
@@ -29,8 +28,6 @@ A window contains the visible content of the application.
 When an application is created, it automatically creates the [Creating Window](#defaultwindow) for building the main user interface of the application.
 
 [Additional windows](#additionalwindow) can be created (as needed) to display additional content.
-
-<img src="./media/MultipleWindow.png">
 
 The window delivers [various events](#eventhandling) (e.g. key event and touch event) to the application.
 
@@ -45,11 +42,7 @@ When an application is created, the default window will be automatically created
 MyApplication myApp = new MyApplication();
 ~~~
 
-By default, the default window is created in full screen size, except that if running on the desktop the default size of the window is set by the **set-env** script. The default window size can be overriden by environment variables or command line options when launching the application in command line. For example:
-
-~~~{.cs}
-DALI_WINDOW_WIDTH=1920 DALI_WINDOW_HEIGHT=1080 my-app
-~~~
+By default, the default window is created in full screen size.
 
 It also allows to specify the initial size and position of the default window by passing them to the constructor of the application:
 
@@ -102,6 +95,8 @@ title.VerticalAlignment = VerticalAlignment.Center;
 // Add the text to the window
 window.Add(title);
 ~~~
+
+<img src="./media/new_window3.png">
 
 [Back to top](#top)
 
@@ -164,27 +159,6 @@ window.Show();
 ~~~
 
 If all the windows are hidden, the updating and rendering of the windows will be paused.
-
-[Back to top](#top)
-
-<a name="raisinglowering"></a>
-## Changing window stacking order
-
-NUI provides support for changing the stacking order of the windows.
-
-A window can be raised to the top of the window stack so that no sibling window obscures it.
-
-~~~{.cs}
-window.Raise();
-~~~
-
-A window can be lowered to the bottom of the window stack so that it does not obscure any sibling windows.
-
-~~~{.cs}
-window.Lower();
-~~~
-
-New windows are automatically put to the top of the window stack at creation time by the window manager.
 
 [Back to top](#top)
 
@@ -257,8 +231,144 @@ private void OnWindowResized(object sender, Window.ResizedEventArgs e)
 
 [Back to top](#top)
 
+<a name="Rotation"></a>
+## Window Rotation
+
+To support rotation, NUI provides two methods.
+
+### Enable/Disable rotation
+
+If the device supports rotation, application can rotate the window with specific orientation.
+
+The supported orientation are Portriat, Landscape, PortraitInverse and LandscapeInverse.
+Portrait means the width is larger than the height or same.
+Otherwise Landscape means the width is larger than the height.
+
+<img src="./media/device_rotate2.png">
+
+
+Application can enable or disable the specifc orientation to use orientation functions. The below example means that Portrait, Landscape and LandscapeInverse are supported in the application.
+If the device's width is larger than the height, the window will be shown with Landscape when application is lanunched. Otherwise the device's width is larger than the height or same, the window will be shown with Portrait.   
+
+~~~{.cs}
+// To enable Portrait
+window.AddAvailableOrientation( Portrait );
+
+// To enable Landscape
+window.AddAvailableOrientation( Landscape );
+
+// To disable PortraitInverse
+window.RemoveAvailableOrientation( PortraitInverse );
+
+// To enable LandscapeInverse
+window.AddAvailableOrientation( LandscapeInverse );
+~~~
+
+
+### Preferred orientation
+
+Sometimes, the window should only work the specific orientation.
+For the case, the preferred orientation function is supplied.
+We recommand that the preferred orientation is one of avialable orientations.
+For instance, look at the below example.
+The available orientation list has Portrait, Landscape and LandscapeInverse, then the preferred orientation is set with Landscape.
+After that, the window will only work Landscape although device is rotated with any orientation.
+
+~~~{.cs}
+// To enable available orientations
+window.AddAvailableOrientation( Portrait );
+window.AddAvailableOrientation( Landscape );
+window.AddAvailableOrientation( LandscapeInverse );
+
+// To set the preferred orientation with Landscape.
+window.SetPreferredOrientation( Landscape );
+~~~
+
+> **Note**
+>
+> If the Preferred Orientation's function is used without the available orientation list, the rotation will not work normal.
+>
+
+[Back to top](#top)
+
+<a name="multiwindow"></a>
+## Multi Window
+
+<a name="additionalwindow"></a>
+### Creating Additional Window
+
+It is easy to create an additional window in addition to the default window. The size and position of the new window should be specified. Each window can has its own background color and title.
+
+~~~{.cs}
+Window newWindow = new Window(new Rectangle(0, 0, 1920, 1080))
+{
+    BackgroundColor = Color.White,
+    Title = "new window"
+};
+~~~
+
+<img src="./media/multiwindow3.png">
+
+> **Note**
+>
+> To support rotation in multi window, the [rotation](#rotation) functions should be used for each window.
+>
+
+<a name="raisinglowering"></a>
+## Changing window stacking order
+
+NUI provides support for changing the stacking order of the windows.
+
+A window can be raised to the top of the window stack so that no sibling window obscures it.
+
+~~~{.cs}
+window.Raise();
+~~~
+
+A window can be lowered to the bottom of the window stack so that it does not obscure any sibling windows.
+
+~~~{.cs}
+window.Lower();
+~~~
+
+New windows are automatically put to the top of the window stack at creation time by the window manager.
+
+[Back to top](#top)
+
+
+<a name="transientfor"></a>
+### Setting parent window
+
+To set transient for two windows, SetParent function is useful.
+After setting that, these windows do together when raise-up, lower and iconified/deiconified.
+Initially, the window is located on top of the parent. The window can go below parent by calling Lower().
+~~~{.cs}
+// Get the parent window instance
+Window parent = Window.Instance;
+
+Window child = new Window(new Rectangle(0, 0, 960, 1080))
+{
+    BackgroundColor = Color.White,
+    Title = "child window"
+};
+
+child.SetParent( parent );
+~~~
+
+To unset transient for relationship, call Unparent().
+~~~{.cs}
+child.Unparent();
+~~~
+
+> **Note**
+>
+> If parent's window stack is changed by calling Raise() or Lower(),> child windows are located on top of the parent again.
+>
+
+[Back to top](#top)
+
 <a name="focusmanagement"></a>
-## Focus management
+### Focus management
 
 Keyboard focus can be handled between multiple windows.
 
@@ -373,30 +483,3 @@ private void OnFocusedViewActivated(object sender, FocusManager.FocusedViewActiv
 
 [Back to top](#top)
 
-<a name="Rotation"></a>
-## Window Rotation
-
-
-
-[Back to top](#top)
-
-<a name="multiwindow"></a>
-## Multi Window
-
-<a name="additionalwindow"></a>
-### Creating Additional Window
-
-It is easy to create an additional window in addition to the default window. The size and position of the new window should be specified. Each window can has its own background color and title.
-
-~~~{.cs}
-Window newWindow = new Window(new Rectangle(0, 0, 1920, 1080))
-{
-    BackgroundColor = Color.White,
-    Title = "new window"
-};
-~~~
-
-<a name="transientfor"></a>
-### Setting parent window
-
-[Back to top](#top)
